@@ -3,166 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LightsOut</title>
+    <title>LightsPuzzle Pro Max</title>
     <style>
-        body {
-            background-color: #222;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            color: white;
-            font-family: sans-serif;
-            touch-action: none;
-            overflow: hidden;
+        :root { --bg-color: #121212; --panel-color: #2a2a2a; --accent: #3b82f6; --danger: #ef4444; }
+        body { background-color: var(--bg-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; color: white; font-family: system-ui, -apple-system, sans-serif; touch-action: none; overflow: hidden; }
+        
+        #game-container { 
+            display: flex; 
+            flex-direction: row; 
+            gap: 10px; 
+            background-color: var(--panel-color); 
+            padding: 10px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            max-width: 98vw; 
+            height: 620px; 
+            align-items: stretch; 
         }
-        #game-container {
-            display: flex;
-            flex-direction: row;
-            gap: 10px;
-            background-color: #333;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            max-width: 98vw;
-            width: fit-content;
-            position: relative;
+        
+        #canvas-area { 
+            position: relative; 
+            background-color: #000; 
+            border: 2px solid #555; 
+            border-radius: 4px; 
+            overflow: hidden; 
+            width: 800px; 
+            height: 600px; 
+            cursor: grab;
         }
-        #canvas-area {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            background-color: #1a1a1a;
-            border: 2px solid #555;
+        #canvas-area:active { cursor: grabbing; }
+
+        #extra-link { 
+            position: absolute; top: 10px; left: 10px; z-index: 40; 
+            background: rgba(136,34,34,0.8); color: #fff; padding: 8px 12px; 
+            border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: bold; border: 1px solid #922; 
         }
-        #guide-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 5px 10px;
-            pointer-events: none;
-            display: none;
-            flex-wrap: wrap;
-            gap: 10px;
-            z-index: 10;
-            font-size: 11px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        @media (max-width: 850px) {
-            #game-container {
-                flex-direction: column;
-                align-items: center;
-                overflow-y: auto;
-                max-height: 98vh;
-            }
-            #inspector { width: 100% !important; height: auto !important; min-height: 400px; }
-        }
-        canvas {
-            display: block;
-            touch-action: none;
-            cursor: crosshair;
-        }
-        #inspector {
-            width: 240px;
-            display: flex;
-            flex-direction: column;
-            background-color: #444;
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 14px;
-            height: 480px;
+
+        #inspector { 
+            width: 260px; 
+            height: 600px; 
+            display: flex; 
+            flex-direction: column; 
+            background-color: #444; 
+            padding: 10px; 
+            border-radius: 4px; 
+            font-size: 14px; 
             box-sizing: border-box;
+            position: relative;
+            overflow: hidden; 
         }
-        #langBtn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background-color: rgba(85, 85, 85, 0.8);
-            font-size: 14px;
-            padding: 8px 15px;
-            border: 1px solid #777;
-            z-index: 30;
+        
+        .header { font-weight: bold; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #666; padding-bottom: 3px; flex-shrink: 0; }
+        
+        .usage-text { 
+            font-size: 10px; color: #ccc; margin-bottom: 8px; line-height: 1.3; 
+            background: rgba(0,0,0,0.2); padding: 6px; border-radius: 2px; flex-shrink: 0;
         }
-        #menuBtn {
-            position: absolute;
-            top: 45px; 
-            right: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
-            border: 1px solid #999;
-            padding: 8px 15px;
-            z-index: 25;
-            font-size: 13px;
-            display: none;
+        
+        .scroll-area { 
+            flex-grow: 1; 
+            overflow-y: auto; 
+            background: #2b2b2b; 
+            padding: 4px; 
+            border: 1px solid #222; 
+            margin-bottom: 10px; 
         }
-        #count-display {
-            position: absolute;
-            top: 85px;
-            right: 10px;
-            background-color: rgba(0, 0, 0, 0.6);
-            border: 1px solid #555;
-            padding: 5px 10px;
-            z-index: 25;
-            font-size: 12px;
-            color: #ff0;
-            display: none;
-            text-align: right;
-            min-width: 60px;
-            pointer-events: none;
+        
+        .click-entry { background-color: #555; padding: 3px; margin-bottom: 3px; border-radius: 3px; display: flex; gap: 4px; align-items: center; }
+        .click-entry span { font-size: 10px; color: #ccc; }
+        .click-entry input { width: 36px; background-color: #222; color: #fff; border: 1px solid #777; text-align: center; font-size: 11px; padding: 2px 0; }
+        .active-entry { border: 1px solid #ffff00; background-color: #664; }
+        
+        canvas { display: block; width: 100%; height: 100%; }
+        #langBtn { position: absolute; top: 10px; right: 10px; background: #444; font-size: 14px; padding: 8px 16px; border: 1px solid #666; z-index: 50; border-radius: 4px; color: white; }
+        #menuBtn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); border: 1px solid #fff; padding: 8px 16px; z-index: 45; display: none; border-radius: 4px; }
+        #count-display { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); padding: 4px 10px; font-size: 16px; color: #0f0; display: none; font-family: monospace; }
+        
+        button { cursor: pointer; color: white; border: none; border-radius: 3px; font-weight: bold; }
+        .btn-plus { background-color: #4a4; padding: 2px 10px; font-size: 16px; }
+        
+        .control-group { 
+            background: #333; padding: 8px; border-radius: 4px;
+            display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;
         }
-        .header {
-            font-weight: bold;
-            margin-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #666;
-            padding-bottom: 5px;
+        .btn-start { background-color: #44a; padding: 10px 0; font-size: 13px; }
+        .btn-reset { background-color: #666; padding: 10px 0; font-size: 13px; }
+        input[type="range"] { width: 100%; margin: 4px 0; }
+
+        @media (max-width: 1024px) {
+            #game-container { flex-direction: column; width: 95vw; height: auto; }
+            #canvas-area { width: 100%; height: 400px; }
+            #inspector { width: 100%; height: 500px; }
         }
-        .usage-text { font-size: 10px; color: #ccc; margin-bottom: 8px; line-height: 1.2; }
-        .scroll-area {
-            flex-grow: 1;
-            overflow-y: auto;
-            margin-bottom: 10px;
-            background: #2b2b2b;
-            padding: 5px;
-            border: 1px solid #222;
-        }
-        .click-entry {
-            background-color: #555; padding: 4px; margin-bottom: 4px;
-            border-radius: 3px; display: flex; gap: 4px; align-items: center;
-        }
-        .click-entry input {
-            width: 40px; background-color: #222; color: #fff;
-            border: 1px solid #777; text-align: center;
-        }
-        .active-entry { border: 2px solid #ffff00; }
-        button { cursor: pointer; color: white; border: none; padding: 10px 5px; border-radius: 3px; font-weight: bold; }
-        .btn-plus { background-color: #4a4; padding: 4px 12px; }
-        .btn-start { background-color: #44a; }
-        .btn-stop { background-color: #a44; }
-        .btn-reset { background-color: #666; }
-        .btn-retry { background-color: #d4a017; padding: 12px; font-size: 16px; width: 100%; }
-        .control-group { margin-top: auto; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #666; padding-top: 10px; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <button id="langBtn" onclick="toggleLang()">JP / EN</button>
-    
     <div id="canvas-area">
-        <div id="guide-overlay">
-            <span id="gClick" style="color:#fff"></span>
-            <span id="gDrag" style="color:#aff"></span>
-            <span id="gZoom" style="color:#aff"></span>
-            <span id="gEsc" style="color:#faa"></span>
-        </div>
+        <a id="extra-link" href="https://ripple-game.netlify.app/">🔗 高難度版はこちら</a>
+        <button id="langBtn" onclick="toggleLang()">JP/EN</button>
         <button id="menuBtn" onclick="backToTitle()">MENU</button>
-        <div id="count-display">MOVES: 0</div>
-        <canvas id="gameCanvas" oncontextmenu="return false;"></canvas>
+        <div id="count-display">0</div>
+        <canvas id="gameCanvas"></canvas>
     </div>
 
     <div id="inspector" style="display: none;">
@@ -172,15 +115,14 @@
         </div>
         <div id="labelUsage" class="usage-text"></div>
         <div id="scrollArea" class="scroll-area"></div>
-        
         <div class="control-group">
-            <label><span id="labelSpeed">Speed</span>: x<span id="speedVal">1.0</span></label>
-            <input type="range" id="speedRange" min="0.5" max="10.0" step="0.1" value="1.0" oninput="updateSpeed(this.value)">
+            <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom: 2px;">
+                <span id="labelSpeed">Speed</span><span>x<span id="speedVal">1.0</span></span>
+            </div>
+            <input type="range" id="speedRange" min="0.5" max="10.0" step="0.5" value="1.0" oninput="updateSpeed(this.value)">
             <button id="autoStartBtn" class="btn-start" onclick="toggleAutoPlay()">START AUTO</button>
             <button id="btnResetBoard" class="btn-reset" onclick="resetBoard()">RESET BOARD</button>
-            <div id="winControls" style="display:none; margin-top:5px;">
-                <button id="btnRetryLevel" class="btn-retry" onclick="retryGame()">RETRY LEVEL</button>
-            </div>
+            <button id="btnRetryLevel" style="background:#d4a017; padding:10px 0; margin-top:2px; display:none;" onclick="retryGame()">RETRY LEVEL</button>
         </div>
     </div>
 </div>
@@ -190,76 +132,62 @@ const i18n = {
     ja: {
         rules: [
             "【遊び方】",
-            "・マスをタップすると、そのマスと上下左右の色が反転します。",
-            "・画面内の全マスを同じ色に揃えればクリアです！",
+            "・タイルをタップすると、その場所と上下左右の計5マスの色が反転します。",
+            "・すべてのマスの色を「黄色」または「灰色」のどちらか一色に揃えればクリアです。",
             "",
-            "【モード】",
-            "・Normal: 全て消灯した状態から開始します。",
-            "・Challenge: ランダムに点灯した状態から開始します。"
+            "【操作】",
+            "・タイルを左クリック：タイルの反転",
+            "・右クリック/2本指でドラッグ：盤面の移動",
+            "・マウスホイール/ピンチ：ズームイン・アウト",
+            "",
+            "【モード解説】",
+            "・NORMAL: すべて灰色（OFF）の状態から始まります。模様作りや練習に最適です。",
+            "・CHALLENGE: ランダムな状態からスタート。全消しを目指すパズルモードです。"
         ],
-        range: "サイズ範囲", titleDesc: "サイズをタップして変更、モードを選んで開始", 
-        normalBtn: "Normal Mode", challengeBtn: "Challenge Mode",
-        autoPlay: "Auto Play (自動実行)", usage: "＋ボタンで座標を追加します。STARTを押すとリストの順に自動反転させます。", speed: "実行速度",
-        startAuto: "START AUTO", stopAuto: "STOP AUTO", resetBoard: "盤面をリセット", retryLevel: "レベルをやり直す",
-        guideClick: "タップ：反転", guideDrag: "右ドラッグ：カメラ移動", guideZoom: "ホイール：ズーム", guideEsc: "ESC：タイトルへ",
-        win: "CLEAR!!", promptCols: "列数(横マスの数)を入力してください", promptRows: "行数(縦マスの数)を入力してください",
-        moves: "手数"
+        titleDesc: "サイズ設定（2〜128）：中央の数字をタップして変更", 
+        normalBtn: "NORMAL", challengeBtn: "CHALLENGE",
+        autoPlay: "Auto Play", 
+        usage: "右上「＋」でクリック座標リストを作成。STARTで上から順に自動タップを実行。ホイール等で盤面をズーム・移動させて確認できます。STOPで一時停止、RESETで初期状態へ。", 
+        speed: "Speed", startAuto: "START AUTO", stopAuto: "STOP AUTO", resetBoard: "RESET BOARD", retryLevel: "RETRY LEVEL", win: "CLEAR!", moves: "手"
     },
     en: {
         rules: [
             "【HOW TO PLAY】",
-            "• Tap a tile to flip its color and its neighbors.",
-            "• Clear by making all tiles the same color!",
+            "• Tapping a tile flips the colors of that tile and its 4 neighbors.",
+            "• Clear the level by making all tiles either all Yellow or all Gray.",
+            "",
+            "【CONTROLS】",
+            "• Left-click: Flip tile",
+            "• Right-click/2-Finger drag: Pan board",
+            "• Wheel/Pinch: Zoom in and out",
             "",
             "【MODES】",
-            "• Normal: Starts with all tiles off.",
-            "• Challenge: Starts with random tiles on."
+            "• NORMAL: Starts with an empty (Gray) grid. Good for patterns.",
+            "• CHALLENGE: Starts with a randomized grid. Solve the puzzle."
         ],
-        range: "Size Range", titleDesc: "Tap size to change, pick a mode to start",
-        normalBtn: "Normal Mode", challengeBtn: "Challenge Mode",
-        autoPlay: "Auto Play", usage: "Add coordinates with '+'. Press START to run them in order.", speed: "Speed",
-        startAuto: "START AUTO", stopAuto: "STOP AUTO", resetBoard: "RESET BOARD", retryLevel: "RETRY LEVEL",
-        guideClick: "Tap: Flip", guideDrag: "RightDrag: Move", guideZoom: "Wheel: Zoom", guideEsc: "ESC: Back",
-        win: "YOU WIN!", promptCols: "Enter columns count", promptRows: "Enter rows count",
-        moves: "MOVES"
+        titleDesc: "Size (2-128): Tap numbers below to change", 
+        normalBtn: "NORMAL", challengeBtn: "CHALLENGE",
+        autoPlay: "Auto Play", 
+        usage: "Tap '+' to add points. START runs the sequence. Use wheel/pinch to zoom and move. STOP to pause, RESET to return to start.",
+        speed: "Speed", startAuto: "START AUTO", stopAuto: "STOP AUTO", resetBoard: "RESET BOARD", retryLevel: "RETRY LEVEL", win: "WIN!", moves: "MOVES"
     }
 };
 
 let currentLang = 'ja';
-const WIDTH = 640;
-const HEIGHT = 480;
-const MIN_LIMIT = 2;
-const MAX_LIMIT = 128;
-
+const WIDTH = 800, HEIGHT = 600;
 let state = 'TITLE', colsInput = "5", rowsInput = "5", activeInput = 'cols', board = null;
-let isWin = false, hasStarted = false, scale = 1.0, offsetX = 0, offsetY = 0;
-let isDragging = false, lastMouseX = 0, lastMouseY = 0, baseCellSize = 50;
+let isWin = false, moveCount = 0, initialBoardState = [];
 let autoEntries = [], autoIndex = -1, isAutoPlaying = false, autoTimer = null, autoSpeed = 1000;
-let moveCount = 0;
-let gameMode = 'NORMAL';
-let initialBoardState = []; // リトライ用に初期状態を保存
 
-class Board {
-    constructor(w, h) {
-        this.width = w; this.height = h;
-        this.cells = new Array(w * h).fill(false);
-    }
-    toggle(x, y) {
-        const targets = [[x, y], [x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y]];
-        targets.forEach(([tx, ty]) => {
-            if (tx >= 0 && tx < this.width && ty >= 0 && ty < this.height) {
-                this.cells[ty * this.width + tx] = !this.cells[ty * this.width + tx];
-            }
-        });
-    }
-}
+let scale = 1.0, camX = WIDTH/2, camY = HEIGHT/2, isDragging = false, lastMouseX = 0, lastMouseY = 0;
+let lastPinchDist = 0;
 
 const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
-const inspector = document.getElementById('inspector'), menuBtn = document.getElementById('menuBtn'), langBtn = document.getElementById('langBtn'), guide = document.getElementById('guide-overlay'), countDisplay = document.getElementById('count-display');
+const inspector = document.getElementById('inspector'), menuBtn = document.getElementById('menuBtn');
+const langBtn = document.getElementById('langBtn'), countDisplay = document.getElementById('count-display');
 canvas.width = WIDTH; canvas.height = HEIGHT;
 
 function toggleLang() { currentLang = currentLang === 'ja' ? 'en' : 'ja'; updateUIText(); draw(); }
-
 function updateUIText() {
     const t = i18n[currentLang];
     document.getElementById('labelAutoPlay').innerText = t.autoPlay;
@@ -268,161 +196,136 @@ function updateUIText() {
     document.getElementById('btnResetBoard').innerText = t.resetBoard;
     document.getElementById('btnRetryLevel').innerText = t.retryLevel;
     document.getElementById('autoStartBtn').innerText = isAutoPlaying ? t.stopAuto : t.startAuto;
-    document.getElementById('gClick').innerText = t.guideClick;
-    document.getElementById('gDrag').innerText = t.guideDrag;
-    document.getElementById('gZoom').innerText = t.guideZoom;
-    document.getElementById('gEsc').innerText = t.guideEsc;
-    updateMoveDisplay();
-}
-
-function updateMoveDisplay() {
-    countDisplay.innerText = `${i18n[currentLang].moves}: ${moveCount}`;
-}
-
-function shuffleBoard() {
-    // 適当な回数（面積と同じくらい）ランダムにクリックして「解ける盤面」を作る
-    const steps = board.width * board.height;
-    for(let i = 0; i < steps; i++) {
-        const rx = Math.floor(Math.random() * board.width);
-        const ry = Math.floor(Math.random() * board.height);
-        board.toggle(rx, ry);
-    }
+    countDisplay.innerText = `${moveCount} ${t.moves}`;
 }
 
 function initGame(mode) {
-    gameMode = mode;
-    let c = parseInt(colsInput) || MIN_LIMIT, r = parseInt(rowsInput) || MIN_LIMIT;
-    board = new Board(c, r);
-    
-    if (gameMode === 'CHALLENGE') {
-        shuffleBoard();
-    }
-    
-    // 現在の盤面を初期状態として保存
+    let c = parseInt(colsInput) || 5, r = parseInt(rowsInput) || 5;
+    board = { width: c, height: r, cells: new Array(c * r).fill(false) };
+    const toggle = (x, y) => {
+        [[x,y],[x,y-1],[x,y+1],[x-1,y],[x+1,y]].forEach(([tx, ty]) => {
+            if (tx >= 0 && tx < c && ty >= 0 && ty < r) board.cells[ty * c + tx] = !board.cells[ty * c + tx];
+        });
+    };
+    board.toggle = toggle;
+    if (mode === 'CHALLENGE') for(let i=0; i<c*r; i++) if(Math.random()>0.5) board.toggle(Math.floor(Math.random()*c), Math.floor(Math.random()*r));
     initialBoardState = [...board.cells];
-    
-    isWin = false; hasStarted = false; autoIndex = -1; moveCount = 0;
-    document.getElementById('winControls').style.display = 'none';
-    baseCellSize = Math.min((WIDTH - 80) / c, (HEIGHT - 80) / r, 80);
-    scale = 1.0; offsetX = (WIDTH - c * baseCellSize) / 2; offsetY = (HEIGHT - r * baseCellSize) / 2;
-    state = 'PLAY'; 
-    inspector.style.display = 'flex'; 
-    menuBtn.style.display = 'block'; 
-    countDisplay.style.display = 'block';
-    langBtn.style.display = 'none'; 
-    guide.style.display = 'flex';
-    updateUIText(); draw();
+    isWin = false; autoIndex = -1; moveCount = 0; autoEntries = [];
+    scale = Math.min(WIDTH/(c*50 + 40), HEIGHT/(r*50 + 40), 1.0);
+    camX = WIDTH/2; camY = HEIGHT/2;
+    state = 'PLAY'; inspector.style.display = 'flex'; menuBtn.style.display = 'block'; countDisplay.style.display = 'block'; langBtn.style.display = 'none';
+    document.getElementById('extra-link').style.display = 'none';
+    updateUIText(); renderInspector(); draw();
 }
 
-function backToTitle() { 
-    stopAutoPlay(); 
-    state = 'TITLE'; 
-    moveCount = 0;
-    inspector.style.display = 'none'; 
-    menuBtn.style.display = 'none'; 
-    countDisplay.style.display = 'none';
-    langBtn.style.display = 'block'; 
-    guide.style.display = 'none'; 
-    draw(); 
-}
+function backToTitle() { stopAutoPlay(); state = 'TITLE'; inspector.style.display = 'none'; menuBtn.style.display = 'none'; countDisplay.style.display = 'none'; langBtn.style.display = 'block'; document.getElementById('extra-link').style.display = 'block'; draw(); }
 
-function draw() { ctx.clearRect(0, 0, WIDTH, HEIGHT); if (state === 'TITLE') drawTitle(); else drawPlay(); }
-
-function drawTitle() {
+function draw() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, WIDTH, HEIGHT);
     const t = i18n[currentLang];
-    ctx.fillStyle = "white"; ctx.textAlign = "center"; ctx.font = "bold 48px sans-serif"; ctx.fillText("LightsOut", WIDTH / 2, 80);
-    ctx.font = "14px sans-serif"; ctx.textAlign = "left"; ctx.fillStyle = "#eee";
-    t.rules.forEach((line, i) => ctx.fillText(line, WIDTH / 2 - 200, 130 + i * 22));
-    ctx.textAlign = "center"; ctx.font = "24px sans-serif";
-    ctx.fillStyle = (activeInput === 'cols') ? "#ffff00" : "white"; ctx.fillText(`Cols: ${colsInput}`, WIDTH / 2 - 80, 325);
-    ctx.fillStyle = (activeInput === 'rows') ? "#ffff00" : "white"; ctx.fillText(`Rows: ${rowsInput}`, WIDTH / 2 + 80, 325);
-    ctx.font = "13px sans-serif"; ctx.fillStyle = "#aaa";
-    ctx.fillText(`${t.range}: ${MIN_LIMIT} - ${MAX_LIMIT}`, WIDTH / 2, 355);
-    ctx.fillText(t.titleDesc, WIDTH / 2, 375);
-    
-    // Normal Mode Button
-    ctx.fillStyle = "#44a"; ctx.fillRect(WIDTH/2 - 210, 410, 200, 45);
-    ctx.fillStyle = "white"; ctx.font = "bold 18px sans-serif"; ctx.fillText(t.normalBtn, WIDTH/2 - 110, 440);
-    
-    // Challenge Mode Button
-    ctx.fillStyle = "#a44"; ctx.fillRect(WIDTH/2 + 10, 410, 200, 45);
-    ctx.fillStyle = "white"; ctx.font = "bold 18px sans-serif"; ctx.fillText(t.challengeBtn, WIDTH/2 + 110, 440);
-}
-
-function drawPlay() {
-    const curSize = baseCellSize * scale, gap = curSize > 5 ? 1 : 0;
-    const startX = Math.max(0, Math.floor(-offsetX / curSize)), endX = Math.min(board.width, Math.ceil((WIDTH - offsetX) / curSize));
-    const startY = Math.max(0, Math.floor(-offsetY / curSize)), endY = Math.min(board.height, Math.ceil((HEIGHT - offsetY) / curSize));
-    for (let y = startY; y < endY; y++) {
-        for (let x = startX; x < endX; x++) {
-            ctx.fillStyle = board.cells[y * board.width + x] ? '#ff0' : '#333';
-            ctx.fillRect(offsetX + x * curSize, offsetY + y * curSize, curSize - gap, curSize - gap);
-        }
-    }
-    if (isWin) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.8)"; ctx.fillRect(0, 0, WIDTH, HEIGHT);
-        ctx.fillStyle = "white"; ctx.textAlign = "center"; ctx.font = "bold 40px sans-serif"; ctx.fillText(i18n[currentLang].win, WIDTH / 2, HEIGHT / 2);
-    }
-}
-
-function handleInteraction(ex, ey, isRight) {
-    const rect = canvas.getBoundingClientRect(), mx = (ex - rect.left) * (WIDTH / rect.width), my = (ey - rect.top) * (HEIGHT / rect.height);
     if (state === 'TITLE') {
-        // Normal Button Click
-        if (mx > WIDTH/2 - 210 && mx < WIDTH/2 - 10 && my > 410 && my < 455) initGame('NORMAL');
-        // Challenge Button Click
-        else if (mx > WIDTH/2 + 10 && mx < WIDTH/2 + 210 && my > 410 && my < 455) initGame('CHALLENGE');
-        // Size Input Click
-        else if (my > 300 && my < 345) {
-            activeInput = (mx < WIDTH/2) ? 'cols' : 'rows';
-            let v = prompt(i18n[currentLang][activeInput === 'cols'?'promptCols':'promptRows'], activeInput === 'cols'?colsInput:rowsInput);
-            if (v !== null) { if (activeInput==='cols') colsInput=forceClamp(v); else rowsInput=forceClamp(v); }
-        }
-        draw();
-    } else if (state === 'PLAY') {
-        if (isRight) { isDragging = true; lastMouseX = mx; lastMouseY = my; }
-        else if (!isWin && !isAutoPlaying) {
-            const curSize = baseCellSize * scale, x = Math.floor((mx - offsetX) / curSize), y = Math.floor((my - offsetY) / curSize);
-            if (x >= 0 && y >= 0 && x < board.width && y < board.height) { 
-                board.toggle(x, y); 
-                hasStarted = true; 
-                moveCount++;
-                updateMoveDisplay();
-                checkWin(); draw(); 
+        ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.font = "bold 60px sans-serif"; ctx.fillText("LightsPuzzle", WIDTH/2, 100);
+        ctx.font = "13px sans-serif"; ctx.textAlign = "left"; ctx.fillStyle = "#ccc";
+        t.rules.forEach((l, i) => ctx.fillText(l, WIDTH/2 - 240, 150 + i*20));
+        
+        ctx.textAlign = "center"; ctx.fillStyle = "#888"; 
+        ctx.fillText(t.titleDesc, WIDTH/2, 410); 
+        
+        ctx.font = "bold 28px monospace";
+        ctx.fillStyle = (activeInput==='cols')?"#3b82f6":"#fff"; ctx.fillText(`Cols: ${colsInput}`, WIDTH/2-80, 450); 
+        ctx.fillStyle = (activeInput==='rows')?"#3b82f6":"#fff"; ctx.fillText(`Rows: ${rowsInput}`, WIDTH/2+80, 450);
+
+        ctx.fillStyle = "#3b82f6"; ctx.fillRect(WIDTH/2-210, 490, 200, 60);
+        ctx.fillStyle = "#991b1b"; ctx.fillRect(WIDTH/2+10, 490, 200, 60);
+        ctx.fillStyle = "#fff"; ctx.font = "bold 18px sans-serif";
+        ctx.fillText(t.normalBtn, WIDTH/2-110, 527); ctx.fillText(t.challengeBtn, WIDTH/2+110, 527);
+
+    } else {
+        ctx.translate(camX, camY);
+        ctx.scale(scale, scale);
+        const cellSize = 50, bW = board.width * cellSize, bH = board.height * cellSize;
+        ctx.translate(-bW/2, -bH/2);
+        for (let y=0; y<board.height; y++) {
+            for (let x=0; x<board.width; x++) {
+                ctx.fillStyle = board.cells[y*board.width+x] ? '#facc15' : '#1f2937';
+                ctx.fillRect(x*cellSize+1, y*cellSize+1, cellSize-2, cellSize-2);
             }
         }
+        if (isWin) {
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,WIDTH,HEIGHT);
+            ctx.fillStyle = "#22c55e"; ctx.textAlign = "center"; ctx.font = "bold 60px sans-serif"; ctx.fillText(t.win, WIDTH/2, HEIGHT/2);
+        }
     }
 }
 
-canvas.addEventListener('mousedown', (e) => handleInteraction(e.clientX, e.clientY, e.button === 2 || e.button === 1));
-window.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    const rect = canvas.getBoundingClientRect(), mx = (e.clientX - rect.left) * (WIDTH / rect.width), my = (e.clientY - rect.top) * (HEIGHT / rect.height);
-    offsetX += mx - lastMouseX; offsetY += my - lastMouseY; lastMouseX = mx; lastMouseY = my; draw();
+canvas.addEventListener('wheel', e => {
+    if(state!=='PLAY') return;
+    const zoom = Math.exp(-e.deltaY * 0.001);
+    scale = Math.min(Math.max(scale * zoom, 0.02), 20);
+    draw(); e.preventDefault();
+}, {passive:false});
+
+canvas.addEventListener('mousedown', e => {
+    lastMouseX = e.clientX; lastMouseY = e.clientY;
+    if(e.button === 2 || e.button === 1) { isDragging = true; return; }
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX-rect.left)*(WIDTH/rect.width), my = (e.clientY-rect.top)*(HEIGHT/rect.height);
+
+    if (state === 'TITLE') {
+        if (my > 490 && my < 550) { if (mx > WIDTH/2-210 && mx < WIDTH/2-10) initGame('NORMAL'); else if (mx > WIDTH/2+10 && mx < WIDTH/2+210) initGame('CHALLENGE'); }
+        else if (my > 430 && my < 470) {
+            activeInput = (mx < WIDTH/2) ? 'cols' : 'rows';
+            let v = prompt("Size (2-128)", activeInput==='cols'?colsInput:rowsInput);
+            if (v) { let n = parseInt(v); if(!isNaN(n)) { n=Math.max(2, Math.min(128, n)); if(activeInput==='cols')colsInput=n.toString(); else rowsInput=n.toString(); }}
+            draw();
+        }
+    } else if (!isWin && !isAutoPlaying) {
+        const worldX = (mx - camX) / scale + (board.width * 50) / 2;
+        const worldY = (my - camY) / scale + (board.height * 50) / 2;
+        const x = Math.floor(worldX / 50), y = Math.floor(worldY / 50);
+        if (x>=0 && y>=0 && x<board.width && y<board.height) { board.toggle(x, y); moveCount++; updateUIText(); checkWin(); draw(); }
+    }
+});
+
+window.addEventListener('mousemove', e => {
+    if (isDragging) { camX += e.clientX - lastMouseX; camY += e.clientY - lastMouseY; draw(); }
+    lastMouseX = e.clientX; lastMouseY = e.clientY;
 });
 window.addEventListener('mouseup', () => isDragging = false);
-canvas.addEventListener('wheel', (e) => {
-    if (state !== 'PLAY') return; e.preventDefault();
-    const oldScale = scale; scale = Math.min(Math.max(0.1, scale + (e.deltaY > 0 ? -0.1 : 0.1)), 30);
-    const rect = canvas.getBoundingClientRect(), mx = (e.clientX - rect.left) * (WIDTH / rect.width), my = (e.clientY - rect.top) * (HEIGHT / rect.height);
-    offsetX = mx - (mx - offsetX) * (scale / oldScale); offsetY = my - (my - offsetY) * (scale / oldScale); draw();
-}, { passive: false });
+canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-function forceClamp(v) { let n = parseInt(v.replace(/[^0-9]/g, "")); return isNaN(n) ? "5" : Math.min(MAX_LIMIT, Math.max(MIN_LIMIT, n)).toString(); }
-function checkWin() { if (hasStarted && (board.cells.every(c => !c) || board.cells.every(c => c))) { isWin = true; stopAutoPlay(); document.getElementById('winControls').style.display = 'block'; } }
-function toggleAutoPlay() { if (isAutoPlaying) stopAutoPlay(); else { if (autoEntries.length === 0) return; isAutoPlaying = true; updateUIText(); document.getElementById('autoStartBtn').className = "btn-stop"; processNextAuto(); } }
-function stopAutoPlay() { isAutoPlaying = false; autoIndex = -1; clearTimeout(autoTimer); updateUIText(); document.getElementById('autoStartBtn').className = "btn-start"; renderInspector(); }
+canvas.addEventListener('touchstart', e => {
+    if(e.touches.length === 2) { lastPinchDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY); }
+    lastMouseX = e.touches[0].pageX; lastMouseY = e.touches[0].pageY;
+}, {passive:false});
+
+canvas.addEventListener('touchmove', e => {
+    if(state!=='PLAY') return;
+    if(e.touches.length === 2) {
+        const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        scale = Math.min(Math.max(scale * (dist / lastPinchDist), 0.02), 20);
+        lastPinchDist = dist;
+        const midX = (e.touches[0].pageX + e.touches[1].pageX) / 2;
+        const midY = (e.touches[0].pageY + e.touches[1].pageY) / 2;
+        camX += midX - lastMouseX; camY += midY - lastMouseY;
+        lastMouseX = midX; lastMouseY = midY;
+    } else if(e.touches.length === 1 && isWin) { 
+         camX += e.touches[0].pageX - lastMouseX; camY += e.touches[0].pageY - lastMouseY;
+         lastMouseX = e.touches[0].pageX; lastMouseY = e.touches[0].pageY;
+    }
+    draw(); e.preventDefault();
+}, {passive:false});
+
+function checkWin() { if (board.cells.every(c => !c) || board.cells.every(c => c)) { isWin = true; stopAutoPlay(); document.getElementById('btnRetryLevel').style.display = 'block'; } }
+function toggleAutoPlay() { if (isAutoPlaying) stopAutoPlay(); else { if(autoEntries.length===0) return; isAutoPlaying=true; autoIndex=-1; updateUIText(); processNextAuto(); } }
+function stopAutoPlay() { isAutoPlaying=false; autoIndex=-1; clearTimeout(autoTimer); updateUIText(); renderInspector(); }
 function processNextAuto() {
     if (!isAutoPlaying || isWin) return;
     autoIndex++; if (autoIndex >= autoEntries.length) autoIndex = 0;
     const e = autoEntries[autoIndex];
-    if (e.x < board.width && e.y < board.height) { 
-        board.toggle(e.x, e.y); 
-        hasStarted = true; 
-        moveCount++;
-        updateMoveDisplay();
-        checkWin(); 
-    }
+    if (e.x < board.width && e.y < board.height) { board.toggle(e.x, e.y); moveCount++; updateUIText(); checkWin(); }
     renderInspector(); draw(); autoTimer = setTimeout(processNextAuto, autoSpeed);
 }
 function addEntry() { autoEntries.push({ x: 0, y: 0, id: Date.now() }); renderInspector(); }
@@ -431,28 +334,15 @@ function renderInspector() {
     const area = document.getElementById('scrollArea'); area.innerHTML = '';
     autoEntries.forEach((e, i) => {
         const d = document.createElement('div'); d.className = `click-entry ${i === autoIndex ? 'active-entry' : ''}`;
-        d.innerHTML = `<span>#${i}</span>X:<input type="number" value="${e.x}" oninput="autoEntries[${i}].x=parseInt(this.value)||0">Y:<input type="number" value="${e.y}" oninput="autoEntries[${i}].y=parseInt(this.value)||0"><button style="background:#a44;padding:2px 5px;margin-left:auto" onclick="removeEntry(${e.id})">×</button>`;
+        d.innerHTML = `<span>#${i}</span>X:<input type="number" value="${e.x}" oninput="autoEntries[${i}].x=parseInt(this.value)||0">Y:<input type="number" value="${e.y}" oninput="autoEntries[${i}].y=parseInt(this.value)||0"><button style="background:#a44;padding:2px 5px;margin-left:auto;font-size:10px;" onclick="removeEntry(${e.id})">×</button>`;
         area.appendChild(d);
     });
 }
 function updateSpeed(v) { autoSpeed = 1000 / parseFloat(v); document.getElementById('speedVal').innerText = parseFloat(v).toFixed(1); }
-function resetBoard() { 
-    if (!board) return; 
-    // Challengeモードでも開始時の状態に戻るようにする
-    board.cells = [...initialBoardState]; 
-    isWin = false; hasStarted = false; moveCount = 0;
-    updateMoveDisplay();
-    document.getElementById('winControls').style.display = 'none'; draw(); 
-}
-function retryGame() { resetBoard(); if (isAutoPlaying) stopAutoPlay(); }
-
-window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { backToTitle(); return; }
-    // EnterはNormalModeで開始するようにデフォルト設定
-    if (state === 'TITLE' && e.key === 'Enter') initGame('NORMAL');
-});
-
-updateUIText(); draw();
+function resetBoard() { board.cells = [...initialBoardState]; isWin = false; moveCount = 0; updateUIText(); document.getElementById('btnRetryLevel').style.display = 'none'; draw(); }
+function retryGame() { resetBoard(); stopAutoPlay(); }
+window.addEventListener('keydown', e => { if (e.key === 'Escape') backToTitle(); });
+draw();
 </script>
 </body>
 </html>
