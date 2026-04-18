@@ -151,7 +151,7 @@ const i18n = {
         titleDesc: "サイズ設定(2-128)：数字をタップして変更",
         normalBtn: "NORMAL", challengeBtn: "CHALLENGE",
         autoPlay: "Auto Play",
-        usage: "＋で座標を追加。STARTで順次実行。移動やズームで確認可能です。",
+        usage: "＋で座標を追加。STARTで順次実行。(座標は0からスタート。20マスなら19、50なら49が最大値)",
         speed: "速度", startAuto: "START AUTO", stopAuto: "STOP AUTO", resetBoard: "RESET BOARD", retryLevel: "RETRY LEVEL",
         win: "CLEAR!!", moves: "手"
     },
@@ -160,7 +160,7 @@ const i18n = {
         titleDesc: "Size(2-128): Tap numbers to change",
         normalBtn: "NORMAL", challengeBtn: "CHALLENGE",
         autoPlay: "Auto Play",
-        usage: "Tap '+' to add points. START runs them. Zoom/Pan to check.",
+        usage: "Tap '+' to add points. START runs them. (Starts from 0. Max is Size-1)",
         speed: "Speed", startAuto: "START AUTO", stopAuto: "STOP AUTO", resetBoard: "RESET BOARD", retryLevel: "RETRY LEVEL",
         win: "YOU WIN!", moves: "MOVES"
     }
@@ -293,7 +293,7 @@ canvas.addEventListener('touchstart', e => {
         lastMouseX = e.touches[0].clientX; 
         lastMouseY = e.touches[0].clientY; 
         isPinching = false; 
-        isDragging = false; // 一本指の時は移動フラグを立てない
+        isDragging = false; 
     }
     else if (e.touches.length === 2) { 
         isPinching = true; 
@@ -311,7 +311,6 @@ canvas.addEventListener('touchmove', e => {
         camX += midX - lastMouseX; camY += midY - lastMouseY;
         lastPinchDist = dist; lastMouseX = midX; lastMouseY = midY; draw();
     }
-    // スマホ版の一本指移動（isDragging = trueの処理）を削除しました
 }, {passive:false});
 canvas.addEventListener('touchend', e => { if(!isPinching && e.changedTouches.length === 1) handleInteraction(e.changedTouches[0].clientX, e.changedTouches[0].clientY); }, {passive:false});
 
