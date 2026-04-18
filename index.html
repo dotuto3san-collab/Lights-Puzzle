@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>LightsPuzzle Pro Max</title>
+    <title>LightsPuzzle</title>
     <style>
         :root { --bg-color: #000; --panel-color: #1a1a1a; --accent: #3b82f6; --text-main: #ffffff; }
         body { 
@@ -117,7 +117,7 @@
 
 <div id="game-container">
     <div id="canvas-area">
-        <a id="extra-link" href="https://ripple-game.netlify.app/">🔗 高難度版はこちら</a>
+        <a id="extra-link" href="https://ripple-game-8wz.pages.dev/">🔗 高難度版はこちら</a>
         <button id="langBtn" onclick="toggleLang()">JP/EN</button>
         <button id="menuBtn" onclick="backToTitle()" style="display: none;">MENU</button>
         <div id="count-display">0</div>
@@ -289,8 +289,18 @@ window.addEventListener('mouseup', () => isDragging = false);
 canvas.addEventListener('wheel', e => { if(state==='PLAY') { e.preventDefault(); scale = Math.min(Math.max(scale * Math.exp(-e.deltaY * 0.001), 0.01), 50); draw(); } }, {passive:false});
 
 canvas.addEventListener('touchstart', e => {
-    if (e.touches.length === 1) { lastMouseX = e.touches[0].clientX; lastMouseY = e.touches[0].clientY; isPinching = false; }
-    else if (e.touches.length === 2) { isPinching = true; lastPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); lastMouseX = (e.touches[0].clientX + e.touches[1].clientX) / 2; lastMouseY = (e.touches[0].clientY + e.touches[1].clientY) / 2; }
+    if (e.touches.length === 1) { 
+        lastMouseX = e.touches[0].clientX; 
+        lastMouseY = e.touches[0].clientY; 
+        isPinching = false; 
+        isDragging = false; // 一本指の時は移動フラグを立てない
+    }
+    else if (e.touches.length === 2) { 
+        isPinching = true; 
+        lastPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); 
+        lastMouseX = (e.touches[0].clientX + e.touches[1].clientX) / 2; 
+        lastMouseY = (e.touches[0].clientY + e.touches[1].clientY) / 2; 
+    }
 }, {passive:false});
 canvas.addEventListener('touchmove', e => {
     e.preventDefault();
@@ -300,10 +310,8 @@ canvas.addEventListener('touchmove', e => {
         scale = Math.min(Math.max(scale * (dist / lastPinchDist), 0.01), 50);
         camX += midX - lastMouseX; camY += midY - lastMouseY;
         lastPinchDist = dist; lastMouseX = midX; lastMouseY = midY; draw();
-    } else if (e.touches.length === 1 && state === 'PLAY') {
-        camX += e.touches[0].clientX - lastMouseX; camY += e.touches[0].clientY - lastMouseY;
-        lastMouseX = e.touches[0].clientX; lastMouseY = e.touches[0].clientY; draw();
     }
+    // スマホ版の一本指移動（isDragging = trueの処理）を削除しました
 }, {passive:false});
 canvas.addEventListener('touchend', e => { if(!isPinching && e.changedTouches.length === 1) handleInteraction(e.changedTouches[0].clientX, e.changedTouches[0].clientY); }, {passive:false});
 
@@ -323,7 +331,7 @@ function renderInspector() {
     const area = document.getElementById('scrollArea'); area.innerHTML = '';
     autoEntries.forEach((e, i) => {
         const d = document.createElement('div'); d.className = `click-entry ${i === autoIndex ? 'active-entry' : ''}`;
-        d.innerHTML = `<span>#${i}</span>X:<input type="number" value="${e.x}" oninput="autoEntries[${i}].x=parseInt(this.value)||0">Y:<input type="number" value="${e.y}" oninput="autoEntries[${i}].y=parseInt(this.value)||0"><button style="background:#a44;padding:5px 10px;margin-left:auto;color:white;font-weight:bold;border-radius:4px;" onclick="removeEntry(${e.id})">×</button>`;
+        d.innerHTML = `<span>#${i}</span>X:<input type="number" value="${e.x}" oninput="autoEntries[${i}].x=parseInt(this.value)||0">Y:<input type="number" value="${e.y}" oninput="autoEntries[${i}].y=parseInt(this.value)||0"><button style="background:#a44;padding:5px 10px;margin-left:auto;color:white;font-weight:bold;border:none;border-radius:4px;" onclick="removeEntry(${e.id})">×</button>`;
         area.appendChild(d);
     });
 }
