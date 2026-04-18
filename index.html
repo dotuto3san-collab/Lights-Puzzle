@@ -2,98 +2,114 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>LightsPuzzle Pro Max</title>
     <style>
-        :root { --bg-color: #121212; --panel-color: #2a2a2a; --accent: #3b82f6; --danger: #ef4444; }
-        body { background-color: var(--bg-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; color: white; font-family: system-ui, -apple-system, sans-serif; touch-action: none; overflow: hidden; }
+        :root { --bg-color: #000; --panel-color: #1a1a1a; --accent: #3b82f6; --text-main: #ffffff; }
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100dvh; 
+            margin: 0; 
+            color: var(--text-main); 
+            font-family: system-ui, -apple-system, sans-serif; 
+            touch-action: none;
+            overflow: hidden; 
+        }
         
         #game-container { 
             display: flex; 
             flex-direction: row; 
-            gap: 10px; 
-            background-color: var(--panel-color); 
-            padding: 10px; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            max-width: 98vw; 
-            height: 620px; 
+            width: 100vw; 
+            height: 100dvh; 
             align-items: stretch; 
         }
         
         #canvas-area { 
             position: relative; 
             background-color: #000; 
-            border: 2px solid #555; 
-            border-radius: 4px; 
+            flex-grow: 1;
             overflow: hidden; 
-            width: 800px; 
-            height: 600px; 
             cursor: grab;
-        }
-        #canvas-area:active { cursor: grabbing; }
-
-        #extra-link { 
-            position: absolute; top: 10px; left: 10px; z-index: 40; 
-            background: rgba(136,34,34,0.8); color: #fff; padding: 8px 12px; 
-            border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: bold; border: 1px solid #922; 
         }
 
         #inspector { 
-            width: 260px; 
-            height: 600px; 
+            width: 280px; 
             display: flex; 
             flex-direction: column; 
-            background-color: #444; 
-            padding: 10px; 
-            border-radius: 4px; 
+            background-color: #222; 
+            padding: 15px; 
             font-size: 14px; 
             box-sizing: border-box;
             position: relative;
-            overflow: hidden; 
+            z-index: 100;
         }
         
-        .header { font-weight: bold; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #666; padding-bottom: 3px; flex-shrink: 0; }
-        
+        #toggleInspector {
+            display: none;
+            position: absolute;
+            right: -50px;
+            top: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(50, 50, 50, 0.9);
+            border: 1px solid #777;
+            border-left: none;
+            border-radius: 0 10px 10px 0;
+            z-index: 200;
+            font-size: 24px;
+            color: white;
+        }
+
+        .header { font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #555; padding-bottom: 5px; }
         .usage-text { 
-            font-size: 10px; color: #ccc; margin-bottom: 8px; line-height: 1.3; 
-            background: rgba(0,0,0,0.2); padding: 6px; border-radius: 2px; flex-shrink: 0;
+            font-size: 11px; color: #fff; margin-bottom: 10px; line-height: 1.4; 
+            background: rgba(255,255,255,0.1); padding: 8px; border-radius: 4px;
         }
         
-        .scroll-area { 
-            flex-grow: 1; 
-            overflow-y: auto; 
-            background: #2b2b2b; 
-            padding: 4px; 
-            border: 1px solid #222; 
-            margin-bottom: 10px; 
-        }
-        
-        .click-entry { background-color: #555; padding: 3px; margin-bottom: 3px; border-radius: 3px; display: flex; gap: 4px; align-items: center; }
-        .click-entry span { font-size: 10px; color: #ccc; }
-        .click-entry input { width: 36px; background-color: #222; color: #fff; border: 1px solid #777; text-align: center; font-size: 11px; padding: 2px 0; }
-        .active-entry { border: 1px solid #ffff00; background-color: #664; }
-        
+        .scroll-area { flex-grow: 1; overflow-y: auto; background: #000; padding: 5px; border: 1px solid #444; margin-bottom: 15px; border-radius: 4px; }
+        .click-entry { background-color: #333; padding: 8px; margin-bottom: 5px; border-radius: 4px; display: flex; gap: 8px; align-items: center; border: 1px solid #555; }
+        .click-entry input { width: 50px; background-color: #111; color: #fff; border: 1px solid #888; text-align: center; font-size: 14px; padding: 4px; border-radius: 4px; }
+        .active-entry { border: 1px solid #ffff00; background-color: #443; }
+
         canvas { display: block; width: 100%; height: 100%; }
-        #langBtn { position: absolute; top: 10px; right: 10px; background: #444; font-size: 14px; padding: 8px 16px; border: 1px solid #666; z-index: 50; border-radius: 4px; color: white; }
-        #menuBtn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); border: 1px solid #fff; padding: 8px 16px; z-index: 45; display: none; border-radius: 4px; }
-        #count-display { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); padding: 4px 10px; font-size: 16px; color: #0f0; display: none; font-family: monospace; }
         
-        button { cursor: pointer; color: white; border: none; border-radius: 3px; font-weight: bold; }
-        .btn-plus { background-color: #4a4; padding: 2px 10px; font-size: 16px; }
-        
-        .control-group { 
-            background: #333; padding: 8px; border-radius: 4px;
-            display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;
+        #langBtn, #menuBtn { 
+            position: absolute; top: 15px; right: 15px; 
+            background: rgba(0,0,0,0.7); color: white; border: 1px solid white; 
+            padding: 10px 20px; z-index: 50; border-radius: 6px; font-weight: bold;
         }
-        .btn-start { background-color: #44a; padding: 10px 0; font-size: 13px; }
-        .btn-reset { background-color: #666; padding: 10px 0; font-size: 13px; }
-        input[type="range"] { width: 100%; margin: 4px 0; }
+
+        #extra-link { 
+            position: absolute; top: 15px; left: 15px; z-index: 40; 
+            background: rgba(136,34,34,0.9); color: #fff; padding: 10px 15px; 
+            border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold; border: 1px solid #922; 
+        }
+
+        #count-display { 
+            position: absolute; bottom: 15px; right: 15px; 
+            background: rgba(0,0,0,0.8); padding: 5px 15px; font-size: 18px; 
+            color: #0f0; display: none; font-family: monospace; border: 1px solid #333; border-radius: 4px;
+        }
+        
+        button { cursor: pointer; touch-action: manipulation; border: none; }
+        .btn-plus { background-color: #22863a; padding: 5px 15px; font-size: 20px; color: white; border-radius: 4px; }
+        
+        .control-group { background: #333; padding: 12px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; }
+        .btn-start { background-color: #0366d6; padding: 12px; font-size: 14px; color: white; font-weight: bold; border-radius: 4px; }
+        .btn-reset { background-color: #444; padding: 10px; font-size: 13px; color: white; border-radius: 4px; border: 1px solid #666; }
 
         @media (max-width: 1024px) {
-            #game-container { flex-direction: column; width: 95vw; height: auto; }
-            #canvas-area { width: 100%; height: 400px; }
-            #inspector { width: 100%; height: 500px; }
+            #inspector { 
+                position: fixed; left: 0; top: 0; width: 320px; height: 100dvh;
+                transform: translateX(-100%); transition: transform 0.3s ease;
+                background-color: rgba(30, 30, 30, 0.98);
+            }
+            #inspector.open { transform: translateX(0); }
+            #toggleInspector { display: block; }
+            #canvas-area { width: 100vw; height: 100dvh; }
         }
     </style>
 </head>
@@ -103,12 +119,13 @@
     <div id="canvas-area">
         <a id="extra-link" href="https://ripple-game.netlify.app/">🔗 高難度版はこちら</a>
         <button id="langBtn" onclick="toggleLang()">JP/EN</button>
-        <button id="menuBtn" onclick="backToTitle()">MENU</button>
+        <button id="menuBtn" onclick="backToTitle()" style="display: none;">MENU</button>
         <div id="count-display">0</div>
-        <canvas id="gameCanvas"></canvas>
+        <canvas id="gameCanvas" oncontextmenu="return false;"></canvas>
     </div>
 
     <div id="inspector" style="display: none;">
+        <button id="toggleInspector" onclick="toggleInspector()">⚙</button>
         <div class="header">
             <span id="labelAutoPlay">Auto Play</span>
             <button class="btn-plus" onclick="addEntry()">+</button>
@@ -116,13 +133,13 @@
         <div id="labelUsage" class="usage-text"></div>
         <div id="scrollArea" class="scroll-area"></div>
         <div class="control-group">
-            <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom: 2px;">
+            <div style="display:flex; justify-content:space-between; font-size:12px; color: white;">
                 <span id="labelSpeed">Speed</span><span>x<span id="speedVal">1.0</span></span>
             </div>
-            <input type="range" id="speedRange" min="0.5" max="10.0" step="0.5" value="1.0" oninput="updateSpeed(this.value)">
+            <input type="range" id="speedRange" min="0.5" max="10.0" step="0.5" value="1.0" oninput="updateSpeed(this.value)" style="width: 100%;">
             <button id="autoStartBtn" class="btn-start" onclick="toggleAutoPlay()">START AUTO</button>
             <button id="btnResetBoard" class="btn-reset" onclick="resetBoard()">RESET BOARD</button>
-            <button id="btnRetryLevel" style="background:#d4a017; padding:10px 0; margin-top:2px; display:none;" onclick="retryGame()">RETRY LEVEL</button>
+            <button id="btnRetryLevel" style="background:#d4a017; padding:12px; display:none; color:white; font-weight:bold; border-radius:4px;" onclick="retryGame()">RETRY LEVEL</button>
         </div>
     </div>
 </div>
@@ -130,62 +147,46 @@
 <script>
 const i18n = {
     ja: {
-        rules: [
-            "【遊び方】",
-            "・タイルをタップすると、その場所と上下左右の計5マスの色が反転します。",
-            "・すべてのマスの色を「黄色」または「灰色」のどちらか一色に揃えればクリアです。",
-            "",
-            "【操作】",
-            "・タイルを左クリック：タイルの反転",
-            "・右クリック/2本指でドラッグ：盤面の移動",
-            "・マウスホイール/ピンチ：ズームイン・アウト",
-            "",
-            "【モード解説】",
-            "・NORMAL: すべて灰色（OFF）の状態から始まります。模様作りや練習に最適です。",
-            "・CHALLENGE: ランダムな状態からスタート。全消しを目指すパズルモードです。"
-        ],
-        titleDesc: "サイズ設定（2〜128）：中央の数字をタップして変更", 
+        rules: ["【遊び方】","・タイルをタップするとその場所と上下左右が反転します。","・全タイルを同じ色に揃えればクリアです。","","【操作】","・タップ：タイルの反転","・2本指ドラッグ：移動 / ピンチ：ズーム","","【モード】","・NORMAL: 全灰色から開始。","・CHALLENGE: ランダム状態から開始。"],
+        titleDesc: "サイズ設定(2-128)：数字をタップして変更",
         normalBtn: "NORMAL", challengeBtn: "CHALLENGE",
-        autoPlay: "Auto Play", 
-        usage: "右上「＋」でクリック座標リストを作成。STARTで上から順に自動タップを実行。ホイール等で盤面をズーム・移動させて確認できます。STOPで一時停止、RESETで初期状態へ。", 
-        speed: "Speed", startAuto: "START AUTO", stopAuto: "STOP AUTO", resetBoard: "RESET BOARD", retryLevel: "RETRY LEVEL", win: "CLEAR!", moves: "手"
+        autoPlay: "Auto Play",
+        usage: "＋で座標を追加。STARTで順次実行。移動やズームで確認可能です。",
+        speed: "速度", startAuto: "START AUTO", stopAuto: "STOP AUTO", resetBoard: "RESET BOARD", retryLevel: "RETRY LEVEL",
+        win: "CLEAR!!", moves: "手"
     },
     en: {
-        rules: [
-            "【HOW TO PLAY】",
-            "• Tapping a tile flips the colors of that tile and its 4 neighbors.",
-            "• Clear the level by making all tiles either all Yellow or all Gray.",
-            "",
-            "【CONTROLS】",
-            "• Left-click: Flip tile",
-            "• Right-click/2-Finger drag: Pan board",
-            "• Wheel/Pinch: Zoom in and out",
-            "",
-            "【MODES】",
-            "• NORMAL: Starts with an empty (Gray) grid. Good for patterns.",
-            "• CHALLENGE: Starts with a randomized grid. Solve the puzzle."
-        ],
-        titleDesc: "Size (2-128): Tap numbers below to change", 
+        rules: ["【HOW TO PLAY】","• Tapping a tile flips it and its 4 neighbors.","• Clear by making all tiles the same color.","","【CONTROLS】","• Tap: Flip / 2-Finger: Pan / Pinch: Zoom","","【MODES】","• NORMAL: Starts with all Gray.","• CHALLENGE: Starts randomized."],
+        titleDesc: "Size(2-128): Tap numbers to change",
         normalBtn: "NORMAL", challengeBtn: "CHALLENGE",
-        autoPlay: "Auto Play", 
-        usage: "Tap '+' to add points. START runs the sequence. Use wheel/pinch to zoom and move. STOP to pause, RESET to return to start.",
-        speed: "Speed", startAuto: "START AUTO", stopAuto: "STOP AUTO", resetBoard: "RESET BOARD", retryLevel: "RETRY LEVEL", win: "WIN!", moves: "MOVES"
+        autoPlay: "Auto Play",
+        usage: "Tap '+' to add points. START runs them. Zoom/Pan to check.",
+        speed: "Speed", startAuto: "START AUTO", stopAuto: "STOP AUTO", resetBoard: "RESET BOARD", retryLevel: "RETRY LEVEL",
+        win: "YOU WIN!", moves: "MOVES"
     }
 };
 
 let currentLang = 'ja';
-const WIDTH = 800, HEIGHT = 600;
 let state = 'TITLE', colsInput = "5", rowsInput = "5", activeInput = 'cols', board = null;
 let isWin = false, moveCount = 0, initialBoardState = [];
 let autoEntries = [], autoIndex = -1, isAutoPlaying = false, autoTimer = null, autoSpeed = 1000;
-
-let scale = 1.0, camX = WIDTH/2, camY = HEIGHT/2, isDragging = false, lastMouseX = 0, lastMouseY = 0;
-let lastPinchDist = 0;
+let scale = 1.0, camX = 0, camY = 0, isDragging = false, lastMouseX = 0, lastMouseY = 0;
+let lastPinchDist = 0, isPinching = false, lastInteractionTime = 0;
 
 const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
 const inspector = document.getElementById('inspector'), menuBtn = document.getElementById('menuBtn');
 const langBtn = document.getElementById('langBtn'), countDisplay = document.getElementById('count-display');
-canvas.width = WIDTH; canvas.height = HEIGHT;
+
+function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    if (state === 'PLAY' && board) {
+        camX = canvas.width / 2;
+        camY = canvas.height / 2;
+    }
+    draw();
+}
+window.addEventListener('resize', resize);
 
 function toggleLang() { currentLang = currentLang === 'ja' ? 'en' : 'ja'; updateUIText(); draw(); }
 function updateUIText() {
@@ -202,124 +203,112 @@ function updateUIText() {
 function initGame(mode) {
     let c = parseInt(colsInput) || 5, r = parseInt(rowsInput) || 5;
     board = { width: c, height: r, cells: new Array(c * r).fill(false) };
-    const toggle = (x, y) => {
+    board.toggle = (x, y) => {
         [[x,y],[x,y-1],[x,y+1],[x-1,y],[x+1,y]].forEach(([tx, ty]) => {
             if (tx >= 0 && tx < c && ty >= 0 && ty < r) board.cells[ty * c + tx] = !board.cells[ty * c + tx];
         });
     };
-    board.toggle = toggle;
     if (mode === 'CHALLENGE') for(let i=0; i<c*r; i++) if(Math.random()>0.5) board.toggle(Math.floor(Math.random()*c), Math.floor(Math.random()*r));
     initialBoardState = [...board.cells];
-    isWin = false; autoIndex = -1; moveCount = 0; autoEntries = [];
-    scale = Math.min(WIDTH/(c*50 + 40), HEIGHT/(r*50 + 40), 1.0);
-    camX = WIDTH/2; camY = HEIGHT/2;
+    isWin = false; autoIndex = -1; moveCount = 0;
+    scale = Math.min((canvas.width-40)/(c*50), (canvas.height-40)/(r*50), 1.0);
+    camX = canvas.width / 2; camY = canvas.height / 2;
     state = 'PLAY'; inspector.style.display = 'flex'; menuBtn.style.display = 'block'; countDisplay.style.display = 'block'; langBtn.style.display = 'none';
     document.getElementById('extra-link').style.display = 'none';
-    updateUIText(); renderInspector(); draw();
+    updateUIText(); resize();
 }
 
-function backToTitle() { stopAutoPlay(); state = 'TITLE'; inspector.style.display = 'none'; menuBtn.style.display = 'none'; countDisplay.style.display = 'none'; langBtn.style.display = 'block'; document.getElementById('extra-link').style.display = 'block'; draw(); }
+function backToTitle() { stopAutoPlay(); state = 'TITLE'; inspector.style.display = 'none'; menuBtn.style.display = 'none'; countDisplay.style.display = 'none'; langBtn.style.display = 'block'; document.getElementById('extra-link').style.display = 'block'; resize(); }
+function toggleInspector() { inspector.classList.toggle('open'); }
 
 function draw() {
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height);
     const t = i18n[currentLang];
     if (state === 'TITLE') {
-        ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.font = "bold 60px sans-serif"; ctx.fillText("LightsPuzzle", WIDTH/2, 100);
-        ctx.font = "13px sans-serif"; ctx.textAlign = "left"; ctx.fillStyle = "#ccc";
-        t.rules.forEach((l, i) => ctx.fillText(l, WIDTH/2 - 240, 150 + i*20));
-        
-        ctx.textAlign = "center"; ctx.fillStyle = "#888"; 
-        ctx.fillText(t.titleDesc, WIDTH/2, 410); 
-        
-        ctx.font = "bold 28px monospace";
-        ctx.fillStyle = (activeInput==='cols')?"#3b82f6":"#fff"; ctx.fillText(`Cols: ${colsInput}`, WIDTH/2-80, 450); 
-        ctx.fillStyle = (activeInput==='rows')?"#3b82f6":"#fff"; ctx.fillText(`Rows: ${rowsInput}`, WIDTH/2+80, 450);
-
-        ctx.fillStyle = "#3b82f6"; ctx.fillRect(WIDTH/2-210, 490, 200, 60);
-        ctx.fillStyle = "#991b1b"; ctx.fillRect(WIDTH/2+10, 490, 200, 60);
-        ctx.fillStyle = "#fff"; ctx.font = "bold 18px sans-serif";
-        ctx.fillText(t.normalBtn, WIDTH/2-110, 527); ctx.fillText(t.challengeBtn, WIDTH/2+110, 527);
-
-    } else {
-        ctx.translate(camX, camY);
-        ctx.scale(scale, scale);
+        ctx.fillStyle = "white"; ctx.textAlign = "center"; ctx.font = "bold 42px sans-serif"; ctx.fillText("LightsPuzzle", canvas.width/2, 70);
+        ctx.font = "bold 15px sans-serif"; ctx.textAlign = "left"; 
+        t.rules.forEach((l, i) => ctx.fillText(l, canvas.width/2 - 160, 120 + i*22));
+        ctx.textAlign = "center"; ctx.font = "bold 14px sans-serif"; ctx.fillText(t.titleDesc, canvas.width/2, 380);
+        ctx.font = "bold 24px monospace";
+        ctx.fillStyle = (activeInput==='cols')?"#3b82f6":"white"; ctx.fillText(`Cols: ${colsInput}`, canvas.width/2-80, 420); 
+        ctx.fillStyle = (activeInput==='rows')?"#3b82f6":"white"; ctx.fillText(`Rows: ${rowsInput}`, canvas.width/2+80, 420);
+        ctx.fillStyle = "#3b82f6"; ctx.fillRect(canvas.width/2-165, 460, 160, 50);
+        ctx.fillStyle = "#991b1b"; ctx.fillRect(canvas.width/2+5, 460, 160, 50);
+        ctx.fillStyle = "white"; ctx.font = "bold 16px sans-serif";
+        ctx.fillText(t.normalBtn, canvas.width/2-85, 492); ctx.fillText(t.challengeBtn, canvas.width/2+85, 492);
+    } else if (board) {
+        ctx.translate(camX, camY); ctx.scale(scale, scale);
         const cellSize = 50, bW = board.width * cellSize, bH = board.height * cellSize;
         ctx.translate(-bW/2, -bH/2);
         for (let y=0; y<board.height; y++) {
             for (let x=0; x<board.width; x++) {
-                ctx.fillStyle = board.cells[y*board.width+x] ? '#facc15' : '#1f2937';
+                ctx.fillStyle = board.cells[y*board.width+x] ? '#facc15' : '#333';
                 ctx.fillRect(x*cellSize+1, y*cellSize+1, cellSize-2, cellSize-2);
             }
         }
         if (isWin) {
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,WIDTH,HEIGHT);
-            ctx.fillStyle = "#22c55e"; ctx.textAlign = "center"; ctx.font = "bold 60px sans-serif"; ctx.fillText(t.win, WIDTH/2, HEIGHT/2);
+            ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "white"; ctx.textAlign = "center"; ctx.font = "bold 48px sans-serif"; ctx.fillText(t.win, canvas.width/2, canvas.height/2);
         }
     }
 }
 
-canvas.addEventListener('wheel', e => {
-    if(state!=='PLAY') return;
-    const zoom = Math.exp(-e.deltaY * 0.001);
-    scale = Math.min(Math.max(scale * zoom, 0.02), 20);
-    draw(); e.preventDefault();
-}, {passive:false});
-
-canvas.addEventListener('mousedown', e => {
-    lastMouseX = e.clientX; lastMouseY = e.clientY;
-    if(e.button === 2 || e.button === 1) { isDragging = true; return; }
+function handleInteraction(clientX, clientY) {
+    if (Date.now() - lastInteractionTime < 100) return;
+    lastInteractionTime = Date.now();
     const rect = canvas.getBoundingClientRect();
-    const mx = (e.clientX-rect.left)*(WIDTH/rect.width), my = (e.clientY-rect.top)*(HEIGHT/rect.height);
-
+    const mx = clientX - rect.left; const my = clientY - rect.top;
     if (state === 'TITLE') {
-        if (my > 490 && my < 550) { if (mx > WIDTH/2-210 && mx < WIDTH/2-10) initGame('NORMAL'); else if (mx > WIDTH/2+10 && mx < WIDTH/2+210) initGame('CHALLENGE'); }
-        else if (my > 430 && my < 470) {
-            activeInput = (mx < WIDTH/2) ? 'cols' : 'rows';
+        if (my > 460 && my < 510) {
+            if (mx > canvas.width/2-165 && mx < canvas.width/2-5) initGame('NORMAL');
+            else if (mx > canvas.width/2+5 && mx < canvas.width/2+165) initGame('CHALLENGE');
+        } else if (my > 400 && my < 440) {
+            activeInput = (mx < canvas.width/2) ? 'cols' : 'rows';
             let v = prompt("Size (2-128)", activeInput==='cols'?colsInput:rowsInput);
             if (v) { let n = parseInt(v); if(!isNaN(n)) { n=Math.max(2, Math.min(128, n)); if(activeInput==='cols')colsInput=n.toString(); else rowsInput=n.toString(); }}
             draw();
         }
-    } else if (!isWin && !isAutoPlaying) {
+    } else if (state === 'PLAY' && !isWin && !isAutoPlaying) {
         const worldX = (mx - camX) / scale + (board.width * 50) / 2;
         const worldY = (my - camY) / scale + (board.height * 50) / 2;
         const x = Math.floor(worldX / 50), y = Math.floor(worldY / 50);
         if (x>=0 && y>=0 && x<board.width && y<board.height) { board.toggle(x, y); moveCount++; updateUIText(); checkWin(); draw(); }
     }
-});
+}
 
+canvas.addEventListener('mousedown', e => {
+    lastMouseX = e.clientX; lastMouseY = e.clientY;
+    if(e.button === 2 || e.button === 1) { isDragging = true; return; }
+    handleInteraction(e.clientX, e.clientY);
+});
 window.addEventListener('mousemove', e => {
     if (isDragging) { camX += e.clientX - lastMouseX; camY += e.clientY - lastMouseY; draw(); }
     lastMouseX = e.clientX; lastMouseY = e.clientY;
 });
 window.addEventListener('mouseup', () => isDragging = false);
-canvas.addEventListener('contextmenu', e => e.preventDefault());
+canvas.addEventListener('wheel', e => { if(state==='PLAY') { e.preventDefault(); scale = Math.min(Math.max(scale * Math.exp(-e.deltaY * 0.001), 0.01), 50); draw(); } }, {passive:false});
 
 canvas.addEventListener('touchstart', e => {
-    if(e.touches.length === 2) { lastPinchDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY); }
-    lastMouseX = e.touches[0].pageX; lastMouseY = e.touches[0].pageY;
+    if (e.touches.length === 1) { lastMouseX = e.touches[0].clientX; lastMouseY = e.touches[0].clientY; isPinching = false; }
+    else if (e.touches.length === 2) { isPinching = true; lastPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); lastMouseX = (e.touches[0].clientX + e.touches[1].clientX) / 2; lastMouseY = (e.touches[0].clientY + e.touches[1].clientY) / 2; }
 }, {passive:false});
-
 canvas.addEventListener('touchmove', e => {
-    if(state!=='PLAY') return;
-    if(e.touches.length === 2) {
-        const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
-        scale = Math.min(Math.max(scale * (dist / lastPinchDist), 0.02), 20);
-        lastPinchDist = dist;
-        const midX = (e.touches[0].pageX + e.touches[1].pageX) / 2;
-        const midY = (e.touches[0].pageY + e.touches[1].pageY) / 2;
+    e.preventDefault();
+    if (e.touches.length === 2) {
+        const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2; const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        scale = Math.min(Math.max(scale * (dist / lastPinchDist), 0.01), 50);
         camX += midX - lastMouseX; camY += midY - lastMouseY;
-        lastMouseX = midX; lastMouseY = midY;
-    } else if(e.touches.length === 1 && isWin) { 
-         camX += e.touches[0].pageX - lastMouseX; camY += e.touches[0].pageY - lastMouseY;
-         lastMouseX = e.touches[0].pageX; lastMouseY = e.touches[0].pageY;
+        lastPinchDist = dist; lastMouseX = midX; lastMouseY = midY; draw();
+    } else if (e.touches.length === 1 && state === 'PLAY') {
+        camX += e.touches[0].clientX - lastMouseX; camY += e.touches[0].clientY - lastMouseY;
+        lastMouseX = e.touches[0].clientX; lastMouseY = e.touches[0].clientY; draw();
     }
-    draw(); e.preventDefault();
 }, {passive:false});
+canvas.addEventListener('touchend', e => { if(!isPinching && e.changedTouches.length === 1) handleInteraction(e.changedTouches[0].clientX, e.changedTouches[0].clientY); }, {passive:false});
 
 function checkWin() { if (board.cells.every(c => !c) || board.cells.every(c => c)) { isWin = true; stopAutoPlay(); document.getElementById('btnRetryLevel').style.display = 'block'; } }
-function toggleAutoPlay() { if (isAutoPlaying) stopAutoPlay(); else { if(autoEntries.length===0) return; isAutoPlaying=true; autoIndex=-1; updateUIText(); processNextAuto(); } }
+function toggleAutoPlay() { if (isAutoPlaying) stopAutoPlay(); else { if(autoEntries.length===0) return; isAutoPlaying=true; updateUIText(); processNextAuto(); } }
 function stopAutoPlay() { isAutoPlaying=false; autoIndex=-1; clearTimeout(autoTimer); updateUIText(); renderInspector(); }
 function processNextAuto() {
     if (!isAutoPlaying || isWin) return;
@@ -334,15 +323,14 @@ function renderInspector() {
     const area = document.getElementById('scrollArea'); area.innerHTML = '';
     autoEntries.forEach((e, i) => {
         const d = document.createElement('div'); d.className = `click-entry ${i === autoIndex ? 'active-entry' : ''}`;
-        d.innerHTML = `<span>#${i}</span>X:<input type="number" value="${e.x}" oninput="autoEntries[${i}].x=parseInt(this.value)||0">Y:<input type="number" value="${e.y}" oninput="autoEntries[${i}].y=parseInt(this.value)||0"><button style="background:#a44;padding:2px 5px;margin-left:auto;font-size:10px;" onclick="removeEntry(${e.id})">×</button>`;
+        d.innerHTML = `<span>#${i}</span>X:<input type="number" value="${e.x}" oninput="autoEntries[${i}].x=parseInt(this.value)||0">Y:<input type="number" value="${e.y}" oninput="autoEntries[${i}].y=parseInt(this.value)||0"><button style="background:#a44;padding:5px 10px;margin-left:auto;color:white;font-weight:bold;border-radius:4px;" onclick="removeEntry(${e.id})">×</button>`;
         area.appendChild(d);
     });
 }
 function updateSpeed(v) { autoSpeed = 1000 / parseFloat(v); document.getElementById('speedVal').innerText = parseFloat(v).toFixed(1); }
 function resetBoard() { board.cells = [...initialBoardState]; isWin = false; moveCount = 0; updateUIText(); document.getElementById('btnRetryLevel').style.display = 'none'; draw(); }
 function retryGame() { resetBoard(); stopAutoPlay(); }
-window.addEventListener('keydown', e => { if (e.key === 'Escape') backToTitle(); });
-draw();
+resize();
 </script>
 </body>
 </html>
